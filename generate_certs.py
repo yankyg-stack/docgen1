@@ -42,7 +42,7 @@ def create_overlay(staff_name, completion_date, sig_date, agency="Attentive"):
     c.rect(pw * 0.25, name_y - 5, pw * 0.5, 25, fill=True, stroke=False)
 
     # ── Staff name — use Times-BoldItalic to match Palatino BoldItalic ──
-    c.setFont("Times-BoldItalic", 18)
+    c.setFont("Times-BoldItalic", 22)
     c.setFillColor(HexColor("#CC0000"))
     c.drawCentredString(pw / 2, name_y, staff_name)
 
@@ -72,9 +72,10 @@ def create_overlay(staff_name, completion_date, sig_date, agency="Attentive"):
     c.setFillColor(HexColor("#000000"))
     c.drawCentredString((311 + 507) / 2, ph * 0.318, completion_date)
 
-    # ── Signature date — between sig line (y_ratio=0.231) and "Date" label (0.211)
+    # ── Signature date — above the sig line, over the "Date" label
+    # Sig line at y_ratio=0.231, "Date" label at y_ratio=0.211
     c.setFont("Times-Roman", 11)
-    c.drawCentredString(pw * 0.83, ph * 0.211, sig_date)
+    c.drawCentredString(pw * 0.83, ph * 0.237, sig_date)
 
     c.save()
     return buf.getvalue()
