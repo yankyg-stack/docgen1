@@ -1,0 +1,174 @@
+{
+  "name": "Staff Training Document Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "staff-list",
+              "name": "staffList",
+              "value": "=[{\"name\":\"Jane Doe\",\"startDate\":\"2021-06-15\"},{\"name\":\"John Smith\",\"startDate\":\"2019-01-10\",\"endDate\":\"2023-05-01\"}]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300],
+      "id": "set-staff-data",
+      "name": "Set Staff List (edit this)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the staff list and return one item per staff member\nconst staffList = JSON.parse($input.first().json.staffList);\nreturn staffList.map(staff => ({ json: staff }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "id": "split-staff",
+      "name": "Split Into Individual Staff"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR-SERVER-URL.com/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ name: $json.name, startDate: $json.startDate, endDate: $json.endDate || '' }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "id": "call-api",
+      "name": "Generate Documents (API)"
+    },
+    {
+      "parameters": {
+        "operation": "createFolder",
+        "folderName": "={{ $json.staffName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "default",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "YOUR_PARENT_FOLDER_ID_HERE",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1120, 300],
+      "id": "create-folder",
+      "name": "Create Staff Folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the folder ID from the Google Drive response\n// and split files into individual items for upload\nconst folderId = $('Create Staff Folder').first().json.id;\nconst apiResponse = $('Generate Documents (API)').first().json;\n\nreturn apiResponse.files.map(file => ({\n  json: {\n    fileName: file.fileName,\n    fileType: file.type,\n    folderId: folderId,\n    staffName: apiResponse.staffName\n  },\n  binary: {\n    data: {\n      data: file.content,\n      mimeType: file.type === 'docx' \n        ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'\n        : 'application/pdf',\n      fileName: file.fileName\n    }\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "id": "prepare-files",
+      "name": "Prepare Files for Upload"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "default",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.folderId }}",
+          "mode": "id"
+        },
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1560, 300],
+      "id": "upload-file",
+      "name": "Upload to Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "id": "manual-trigger",
+      "name": "Manual Trigger"
+    }
+  ],
+  "connections": {
+    "Set Staff List (edit this)": {
+      "main": [
+        [{ "node": "Split Into Individual Staff", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Into Individual Staff": {
+      "main": [
+        [{ "node": "Generate Documents (API)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Documents (API)": {
+      "main": [
+        [{ "node": "Create Staff Folder", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Staff Folder": {
+      "main": [
+        [{ "node": "Prepare Files for Upload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Files for Upload": {
+      "main": [
+        [{ "node": "Upload to Google Drive", "type": "main", "index": 0 }]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [{ "node": "Set Staff List (edit this)", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateId": "staff-training-docs"
+  }
+}
