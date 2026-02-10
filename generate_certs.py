@@ -12,7 +12,10 @@ from reportlab.lib.pagesizes import landscape, letter
 from reportlab.lib.colors import HexColor
 from pypdf import PdfReader, PdfWriter
 
-TEMPLATE_PDF = "/mnt/user-data/uploads/CERTIFICATE-_Attentive_JP.pdf"
+TEMPLATE_PDF = os.environ.get(
+    "TEMPLATE_PDF",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates", "CERTIFICATE-_Attentive_JP.pdf")
+)
 
 
 def create_overlay(staff_name: str, completion_date: str, sig_date: str) -> bytes:
