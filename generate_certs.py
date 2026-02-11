@@ -21,7 +21,7 @@ AGENCY_CONFIG = {
     },
     "Abode": {
         "template": os.path.join(SCRIPT_DIR, "templates", "CERTIFICATE-_Abode_Fishel.pdf"),
-        "trainer_name": "Lipa Lefkowitz",
+        "trainer_name": "Fishel Deutsch",
         # "SC Supervisor" ends at x=457.8, baseline y=136.7
         "title_end_x": 457.8,
         "title_baseline_y": 136.7,
