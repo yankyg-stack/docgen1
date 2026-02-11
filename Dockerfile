@@ -17,6 +17,9 @@ RUN pip3 install pypdf reportlab --break-system-packages
 # Copy application files
 COPY . .
 
+# Verify templates exist (will fail build if missing)
+RUN ls -la /app/templates/ && echo "Templates found!"
+
 # Expose port
 EXPOSE 3000
 
