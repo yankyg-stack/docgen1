@@ -90,7 +90,7 @@ function dataCell(texts, width, center = true) {
 async function generateLog(staffName, startDate, endDate, outputPath, agency) {
   agency = agency || "Attentive";
   const isAbode = agency === "Abode";
-  const trainerName = isAbode ? "Lipa Lefkowitz" : "Joel Posen";
+  const trainerName = isAbode ? "Fishel Deutsch" : "Joel Posen";
   const orgName = isAbode ? "Abode Care Service Coordination" : "Attentive Care Service Coordination";
   const rows = buildRows(startDate, endDate);
 
