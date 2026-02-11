@@ -175,16 +175,14 @@ def create_overlay(field_values, staff_name, date_str, pw, ph, page_num, agency=
             continue
 
         if isinstance(val, bool):
-            # Draw a bold checkmark (✓) inside the box
+            # Draw a bold X mark inside the box
             c.setStrokeColor(HexColor("#000000"))
-            c.setLineWidth(2.0)
-            x0 = cx - w/2 + 1.5
-            y0 = cy - h/2 + 1.5
-            x1 = cx + w/2 - 1.5
-            y1 = cy + h/2 - 1.5
-            # Draw X mark for consistency
-            c.line(x0, y0, x1, y1)
-            c.line(x0, y1, x1, y0)
+            # For tiny checkboxes (<8px), draw a slightly larger mark
+            min_size = max(w, h, 8)
+            half = min_size / 2 - 1.5
+            c.setLineWidth(1.8 if min_size > 7 else 1.2)
+            c.line(cx - half, cy - half, cx + half, cy + half)
+            c.line(cx - half, cy + half, cx + half, cy - half)
         else:
             # Draw text answer
             c.setFont("Helvetica", 10)
