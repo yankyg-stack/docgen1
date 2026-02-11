@@ -75,7 +75,7 @@ def create_overlay(staff_name, completion_date, sig_date, agency="Attentive"):
     # ── Signature date — above the sig line, over the "Date" label
     # Sig line at y_ratio=0.231, "Date" label at y_ratio=0.211
     c.setFont("Times-Roman", 11)
-    c.drawCentredString(pw * 0.86, ph * 0.237, sig_date)
+    c.drawCentredString(pw * 0.82, ph * 0.237, sig_date)
 
     c.save()
     return buf.getvalue()
