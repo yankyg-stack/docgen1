@@ -18,17 +18,27 @@ function addDays(d, n) {
   return r;
 }
 
+// Shift weekends to nearest business day: Sat→Fri, Sun→Mon
+function toBizDay(d) {
+  const r = new Date(d);
+  const day = r.getDay();
+  if (day === 6) r.setDate(r.getDate() - 1); // Saturday → Friday
+  if (day === 0) r.setDate(r.getDate() + 1); // Sunday → Monday
+  return r;
+}
+
 function buildRows(startDate, endDate) {
   const rows = [];
   const start = new Date(startDate);
   const end = endDate ? new Date(endDate) : new Date();  // today if still employed
 
   // Row 0: the hire date itself
+  const trainDate0 = toBizDay(start);
   rows.push({
-    trainingDate: new Date(start),
+    trainingDate: trainDate0,
     goals: "Basic and Service Specific Orientation",
     evaluation: "Pre & Post written evaluation",
-    certDate: addDays(start, 2),
+    certDate: toBizDay(addDays(trainDate0, 2)),
     isFirst: true
   });
 
@@ -38,11 +48,12 @@ function buildRows(startDate, endDate) {
     anniv.setFullYear(anniv.getFullYear() + yr);
     anniv.setDate(anniv.getDate() - 7);        // minus 1 week
     if (anniv > end) break;
+    const trainDate = toBizDay(anniv);
     rows.push({
-      trainingDate: anniv,
+      trainingDate: trainDate,
       goals: "Annual Training",
       evaluation: "Basic and Service Specific Orientation Review",
-      certDate: addDays(anniv, 2),
+      certDate: toBizDay(addDays(trainDate, 2)),
       isFirst: false
     });
   }
